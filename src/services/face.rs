@@ -22,9 +22,10 @@ pub async fn detect_face_bbox_yolo(
     let get_face_req = form.into_inner();
     let temp_file = get_face_req.input;
     let img = tempfile_to_dynimg(temp_file)?;
-    let t1 = std::time::Instant::now();
-    let bbox = get_bbox(loaded_model.get_ref(), &img, 0.5, 0.5).unwrap();
-    let inf_time: f32 = t1.elapsed().as_millis() as f32;
 
-    Ok(HttpResponse::Ok().json(DetectFaceResponse::respond(bbox, inf_time)))
+    let start = std::time::Instant::now();
+    let bbox = get_bbox(loaded_model.get_ref(), &img, 0.5, 0.5).unwrap();
+    let duration = start.elapsed().as_millis() as f32;
+
+    Ok(HttpResponse::Ok().json(DetectFaceResponse::respond(bbox, duration)))
 }

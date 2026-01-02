@@ -26,10 +26,10 @@ pub struct DetectFaceResponse {
 }
 
 impl DetectFaceResponse {
-    pub fn respond(bbox: Vec<Bbox>, inf_time: f32) -> Self {
+    pub fn respond(bbox: Vec<Bbox>, duration: f32) -> Self {
         DetectFaceResponse {
             data: bbox,
-            message: format!("success, time: {}ms", inf_time),
+            message: format!("success, time: {}ms", duration),
         }
     }
 }

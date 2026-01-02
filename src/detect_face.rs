@@ -46,7 +46,7 @@ impl Inference for OnnxModel {
         iou_threshold: f32,
     ) -> Result<Vec<Bbox>, Error> {
         let preprocess_image = preprocess_image(input_image)?;
-        let inference = &self
+        let inference = self
             .model
             .run(inputs!["images" => preprocess_image.view()]?)?;
         let raw_output = inference["output0"]
@@ -64,7 +64,7 @@ impl Inference for OnnxModel {
         for i in 0..raw_output.len_of(Axis(0)) {
             let row = raw_output.slice(s![i, .., ..]);
             let confidence = row[[4, 0]];
-            if &confidence >= &confidence_threshold {
+            if confidence >= confidence_threshold {
                 let x = row[[0, 0]];
                 let y = row[[1, 0]];
                 let w = row[[2, 0]];
