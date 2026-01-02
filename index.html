@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YOLOv8 Object Detection</title>
+    <style>
+      canvas {
+          display:block;
+          border: 1px solid black;
+          margin-top:10px;
+      }
+    </style>
+</head>
+<body>
+    <input id="uploadInput" type="file"/>
+    <canvas></canvas>
+    <script>
+       const input = document.getElementById("uploadInput");
+       
+       input.addEventListener("change", async(event) => {
+           const data = new FormData();
+           data.append("input", event.target.files[0], "input");
+           
+           const response = await fetch("http://127.0.0.1:8090/detect_face",
+                {
+                    method:"post",
+                    body: data
+                }
+            );
+
+           const resp = await response.json();
+           draw_image_and_boxes(event.target.files[0], resp.data);
+       })
+
+      function draw_image_and_boxes(file, bboxes) {
+          const img = new Image()
+          img.src = URL.createObjectURL(file);
+          
+          img.onload = () => {
+              const canvas = document.querySelector("canvas");
+              canvas.width = img.width;
+              canvas.height = img.height;
+              
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(img,0,0);
+              ctx.strokeStyle = "#00FF00";
+              ctx.lineWidth = 3;
+              ctx.font = "18px serif";
+
+              bboxes.forEach((bbox) => {
+                  ctx.strokeRect(bbox.x1, bbox.y1, bbox.x2-bbox.x1, bbox.y2-bbox.y1);
+                  ctx.fillStyle = "#00ff00";
+              });
+          }
+      }
+    </script>
+</body>
+</html>

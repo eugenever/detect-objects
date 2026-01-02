@@ -1,0 +1,36 @@
+[package]
+name = "detect_objects"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+clap = { version = "4.5.19", features = ["derive"] }
+
+tokio = { version = "1.47.1", features = ["macros", "rt-multi-thread"] }
+
+actix = "0.13.5"
+actix-web = { version = "4.12.1", features = ["compress-brotli", "compress-gzip", "compress-zstd", "cookies", "http2", "macros", "unicode"], default-features = false }
+actix-files = "0.6.6"
+actix-multipart = { version = "0.7.2", features = ["tempfile"] }
+actix-cors = "0.7.1"
+
+serde = { version = "1.0.228", features = ["derive"] }
+
+env_logger = "0.11.8"
+log = { version = "0.4.28", features = ["std"] }
+
+anyhow = "1.0.89"
+
+ort = { version = "2.0.0-rc.6"}
+nalgebra = {version="0.33.0"}
+ndarray = {version="0.16.1"}
+
+image = "0.25.2"
+base64 = "0.22.1"
+rand = "0.8.5"
+
+[profile.release]
+opt-level = "z"
+strip = true
+lto = true
