@@ -51,7 +51,7 @@ async fn main() -> anyhow::Result<()> {
     let num_workers = cli.num_workers as usize;
     let port = cli.port;
 
-    let onnx_face_model = match cli.model {
+    let onnx_model = match cli.model {
         val if val == TypeOnnxModel::Face.as_ref() => {
             OnnxModel::load("models/yolov8_face.onnx", false, 320, 320, val).unwrap()
         }
@@ -64,12 +64,12 @@ async fn main() -> anyhow::Result<()> {
         }
     };
 
-    info!("{}", onnx_face_model);
+    info!("{}", onnx_model);
 
     let addr = format!("0.0.0.0:{}", port);
     info!("Server started at 127.0.0.1:{}", port);
 
-    let data_om = web::Data::new(onnx_face_model);
+    let data_om = web::Data::new(onnx_model);
 
     let server = HttpServer::new(move || {
         App::new()

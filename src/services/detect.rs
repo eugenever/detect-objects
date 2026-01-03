@@ -4,7 +4,7 @@ use actix_web::{web, HttpRequest, HttpResponse};
 
 use crate::inference_model::{get_bbox, InferenceModel};
 use crate::services::tempfile_to_dynimg;
-use crate::services::{DetectFaceRequest, DetectFaceResponse};
+use crate::services::{DetectRequest, DetectResponse};
 
 pub async fn index(_req: HttpRequest) -> HttpResponse {
     HttpResponse::Ok()
@@ -15,11 +15,11 @@ pub async fn index(_req: HttpRequest) -> HttpResponse {
 
 pub async fn detect_bbox_yolo(
     loaded_model: web::Data<InferenceModel>,
-    form: MultipartForm<DetectFaceRequest>,
+    form: MultipartForm<DetectRequest>,
     _req: HttpRequest,
 ) -> actix_web::Result<HttpResponse> {
-    let get_face_req = form.into_inner();
-    let temp_file = get_face_req.input;
+    let req = form.into_inner();
+    let temp_file = req.input;
     let img = tempfile_to_dynimg(temp_file)?;
 
     let start = std::time::Instant::now();
@@ -28,5 +28,5 @@ pub async fn detect_bbox_yolo(
         .unwrap();
     let duration = start.elapsed().as_millis() as f32;
 
-    Ok(HttpResponse::Ok().json(DetectFaceResponse::respond(bbox, duration)))
+    Ok(HttpResponse::Ok().json(DetectResponse::respond(bbox, duration)))
 }

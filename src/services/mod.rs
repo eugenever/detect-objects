@@ -15,19 +15,19 @@ use serde::{Deserialize, Serialize};
 use crate::bbox::Bbox;
 
 #[derive(Debug, MultipartForm)]
-pub struct DetectFaceRequest {
+pub struct DetectRequest {
     pub input: TempFile,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct DetectFaceResponse {
+pub struct DetectResponse {
     pub data: Vec<Bbox>,
     pub message: String,
 }
 
-impl DetectFaceResponse {
+impl DetectResponse {
     pub fn respond(bbox: Vec<Bbox>, duration: f32) -> Self {
-        DetectFaceResponse {
+        DetectResponse {
             data: bbox,
             message: format!("success, time: {}ms", duration),
         }
