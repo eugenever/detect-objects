@@ -1,15 +1,16 @@
 mod bbox;
-mod detect_face;
-mod ml_model;
+mod constants;
+mod detect;
+mod inference_model;
 mod services;
 
-use actix_web::middleware::Logger;
-use actix_web::{dev::ServerHandle, web, App, HttpServer};
+use actix_web::{dev::ServerHandle, middleware::Logger, web, App, HttpServer};
 use clap::Parser;
-use log::info;
+use log::{error, info};
 
-use ml_model::{Inference, OnnxModel};
-use services::{detect_face_bbox_yolo, index};
+use constants::TypeOnnxModel;
+use inference_model::{Inference, OnnxModel};
+use services::{detect_bbox_yolo, index};
 
 #[derive(clap::Parser)]
 struct Cli {
@@ -17,15 +18,28 @@ struct Cli {
     port: u16,
     #[arg(long, default_value_t = 1)]
     num_workers: u8,
-    #[arg(long, default_value = "info")]
+    #[arg(
+        long,
+        default_value = "info",
+        value_parser = clap::builder::PossibleValuesParser::new(
+            ["trace", "debug", "info", "error"]
+        ),
+    )]
     log_level: String,
+    #[arg(
+        long,
+        value_parser = clap::builder::PossibleValuesParser::new(
+            [TypeOnnxModel::Face.as_ref(), TypeOnnxModel::Object.as_ref()]
+        ),
+    )]
+    model: String,
 }
 
 /*
 
-./target/release/detect_objects --num-workers 2 --log-level info
+./target/release/detect_objects --num-workers 2 --log-level info --model face
 
-curl --form input='@1.jpg' "http://localhost:8090/detect_face"
+curl --form input='@1.jpg' "http://localhost:8090/detect"
 
 */
 
@@ -37,17 +51,30 @@ async fn main() -> anyhow::Result<()> {
     let num_workers = cli.num_workers as usize;
     let port = cli.port;
 
-    let onnx_model = OnnxModel::load("models/yolov8_face.onnx", false).unwrap();
-    info!("{}", onnx_model);
+    let onnx_face_model = match cli.model {
+        val if val == TypeOnnxModel::Face.as_ref() => {
+            OnnxModel::load("models/yolov8_face.onnx", false, 320, 320, val).unwrap()
+        }
+        val if val == TypeOnnxModel::Object.as_ref() => {
+            OnnxModel::load("models/yolov8m.onnx", false, 640, 640, val).unwrap()
+        }
+        _ => {
+            error!("Unsupported type model '{}'", cli.model);
+            std::process::exit(1);
+        }
+    };
+
+    info!("{}", onnx_face_model);
+
     let addr = format!("0.0.0.0:{}", port);
     info!("Server started at 127.0.0.1:{}", port);
 
-    let data_om = web::Data::new(onnx_model);
+    let data_om = web::Data::new(onnx_face_model);
 
     let server = HttpServer::new(move || {
         App::new()
-            .service(index)
-            .service(detect_face_bbox_yolo)
+            .route("/", web::get().to(index))
+            .route("/detect", web::post().to(detect_bbox_yolo))
             .app_data(data_om.clone())
             .wrap(Logger::default())
             .wrap(actix_cors::Cors::permissive())

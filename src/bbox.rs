@@ -11,16 +11,18 @@ pub struct Bbox {
     pub x2: f32,
     pub y2: f32,
     pub confidence: f32,
+    pub label: String,
 }
 
 impl Bbox {
-    pub fn new(x1: f32, y1: f32, x2: f32, y2: f32, confidence: f32) -> Bbox {
+    pub fn new(x1: f32, y1: f32, x2: f32, y2: f32, confidence: f32, label: String) -> Bbox {
         Bbox {
             x1,
             y1,
             x2,
             y2,
             confidence,
+            label,
         }
     }
 
@@ -55,6 +57,7 @@ impl Bbox {
             x2: cart_x2,
             y2: cart_y2,
             confidence: self.confidence,
+            label: self.label.clone(),
         }
     }
 

@@ -8,6 +8,7 @@ edition = "2021"
 clap = { version = "4.5.19", features = ["derive"] }
 
 tokio = { version = "1.47.1", features = ["macros", "rt-multi-thread"] }
+async-trait = "0.1.89"
 
 actix = "0.13.5"
 actix-web = { version = "4.12.1", features = ["compress-brotli", "compress-gzip", "compress-zstd", "cookies", "http2", "macros", "unicode"], default-features = false }
@@ -16,6 +17,8 @@ actix-multipart = { version = "0.7.2", features = ["tempfile"] }
 actix-cors = "0.7.1"
 
 serde = { version = "1.0.228", features = ["derive"] }
+strum = { version = "0.27.2", features = ["derive"] }
+strum_macros = { version = "0.27.2" }
 
 env_logger = "0.11.8"
 log = { version = "0.4.28", features = ["std"] }

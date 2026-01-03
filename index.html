@@ -21,7 +21,7 @@
            const data = new FormData();
            data.append("input", event.target.files[0], "input");
            
-           const response = await fetch("http://127.0.0.1:8090/detect_face",
+           const response = await fetch("http://127.0.0.1:8090/detect",
                 {
                     method:"post",
                     body: data
@@ -50,6 +50,13 @@
               bboxes.forEach((bbox) => {
                   ctx.strokeRect(bbox.x1, bbox.y1, bbox.x2-bbox.x1, bbox.y2-bbox.y1);
                   ctx.fillStyle = "#00ff00";
+        
+                  if (bbox.label.length > 0) {
+                    const width = ctx.measureText(bbox.label).width;
+                    ctx.fillRect(bbox.x1, bbox.y1, width + 10, 25);
+                    ctx.fillStyle = "#000000";
+                    ctx.fillText(bbox.label, bbox.x1, bbox.y1 + 18);
+                  }
               });
           }
       }

@@ -1,8 +1,8 @@
-mod face;
+mod detect;
 
 use std::io::{Cursor, Read};
 
-pub use face::{detect_face_bbox_yolo, index};
+pub use detect::{detect_bbox_yolo, index};
 
 use actix_multipart::form::tempfile::TempFile;
 use actix_multipart::form::MultipartForm;
@@ -45,12 +45,10 @@ pub fn tempfile_to_dynimg(input_tempfile: TempFile) -> actix_web::Result<Dynamic
     Ok(img)
 }
 
-pub fn dynimg_to_bytes(input_img: &DynamicImage) -> Vec<u8> {
+pub fn dynimg_to_bytes(input_img: &DynamicImage) -> Result<Vec<u8>> {
     let mut img_bytes: Vec<u8> = Vec::new();
-    input_img
-        .write_to(&mut Cursor::new(&mut img_bytes), image::ImageFormat::Png)
-        .unwrap();
-    img_bytes
+    input_img.write_to(&mut Cursor::new(&mut img_bytes), image::ImageFormat::Png)?;
+    Ok(img_bytes)
 }
 
 pub fn image_to_base64(img: &DynamicImage) -> Result<String, Box<dyn std::error::Error>> {
